@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マネジメントトレーニング AIサポート</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #f8f7f4; color: #1a1a1a; }
+.app { max-width: 800px; margin: 0 auto; padding: 1rem; }
+.header { text-align: center; padding: 2rem 1rem 1.5rem; border-bottom: 1px solid #e5e3dc; margin-bottom: 1.5rem; }
+.header h1 { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+.header p { font-size: 14px; color: #666; }
+.mode-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+.tab { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 14px; cursor: pointer; text-align: center; color: #666; transition: all 0.15s; }
+.tab.active { background: #f0efea; color: #1a1a1a; font-weight: 500; border-color: #aaa; }
+.panel { display: none; }
+.panel.active { display: block; }
+.chat-box { border: 1px solid #e5e3dc; border-radius: 12px; overflow: hidden; background: #fff; }
+.messages { height: 420px; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.7; }
+.msg.user { align-self: flex-end; background: #e8f0fb; }
+.msg.ai { align-self: flex-start; background: #f0efea; }
+.msg.loading { align-self: flex-start; color: #999; font-style: italic; background: #f0efea; }
+.chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #e5e3dc; background: #faf9f6; }
+.chat-input-row input { flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; font-family: inherit; }
+.chat-input-row input:focus { outline: none; border-color: #999; }
+.chat-input-row button { padding: 9px 18px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; font-family: inherit; transition: background 0.1s; }
+.chat-input-row button:hover { background: #f0efea; }
+.quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.quick-btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 12px; cursor: pointer; color: #555; font-family: inherit; transition: background 0.1s; }
+.quick-btn:hover { background: #f0efea; }
+.test-card { background: #fff; border: 1px solid #e5e3dc; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+.test-cat { font-size: 11px; color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.test-q { font-size: 15px; margin-bottom: 1rem; line-height: 1.6; }
+.test-options { display: flex; flex-direction: column; gap: 6px; }
+.test-opt { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 14px; background: #fff; text-align: left; transition: all 0.15s; font-family: inherit; }
+.test-opt:hover { background: #f0efea; }
+.test-opt.correct { border-color: #1D9E75; background: #E1F5EE; color: #0F6E56; }
+.test-opt.wrong { border-color: #E24B4A; background: #FCEBEB; color: #A32D2D; }
+.explanation { margin-top: 12px; padding: 10px 14px; background: #f0efea; border-radius: 8px; font-size: 13px; color: #555; line-height: 1.7; }
+.score-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; margin-bottom: 1rem; }
+.score-label { font-size: 13px; color: #666; }
+.score-val { font-size: 18px; font-weight: 500; }
+.check-section { margin-bottom: 1.5rem; }
+.check-section-title { font-size: 13px; font-weight: 500; color: #666; padding: 8px 0; border-bottom: 1px solid #e5e3dc; margin-bottom: 8px; }
+.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0efea; }
+.check-text { flex: 1; font-size: 13px; line-height: 1.6; }
+.check-stars { display: flex; gap: 3px; flex-shrink: 0; }
+.star { width: 22px; height: 22px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #aaa; background: #fff; transition: all 0.1s; }
+.star.on { background: #FAC775; border-color: #EF9F27; color: #633806; }
+.check-result { padding: 1.25rem; background: #f0efea; border-radius: 12px; margin-top: 1rem; }
+.next-btn, .gen-test-btn, .analyze-btn { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; font-family: inherit; transition: background 0.1s; }
+.next-btn:hover, .gen-test-btn:hover, .analyze-btn:hover { background: #f0efea; }
+.cat-select { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 14px; font-family: inherit; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>マネジメントトレーニング AIサポート</h1>
+    <p>60の型 × 心得チェックシートを使ったAI学習・テストアプリ</p>
+  </div>
+
+  <div class="mode-tabs">
+    <div class="tab active" onclick="switchTab('consult', this)">💬 AI相談</div>
+    <div class="tab" onclick="switchTab('test', this)">📝 テスト</div>
+    <div class="tab" onclick="switchTab('check', this)">✅ 心得チェック</div>
+  </div>
+
+  <div id="consult" class="panel active">
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="quickAsk('コーチングとフィードバックの違いを教えてください')">コーチングとフィードバックの違い</button>
+      <button class="quick-btn" onclick="quickAsk('GPKaとは何ですか？どう使いますか？')">GPKaの使い方</button>
+      <button class="quick-btn" onclick="quickAsk('権限委譲でよくある失敗パターンは？')">権限委譲の失敗</button>
+      <button class="quick-btn" onclick="quickAsk('メンバーのWillをどうやって引き出せばいい？')">Willの引き出し方</button>
+      <button class="quick-btn" onclick="quickAsk('野心的な目標設定の具体的な方法を教えてください')">野心的な目標設定</button>
+      <button class="quick-btn" onclick="quickAsk('チームのモメンタムを高める方法は？')">モメンタムの高め方</button>
+    </div>
+    <div class="chat-box">
+      <div class="messages" id="chat-messages">
+        <div class="msg ai">こんにちは！マネジメントトレーニングシートの内容について、何でも相談してください。<br><br>60の型・心得・実践事例をもとに、具体的なアドバイスをお伝えします。</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="マネジメントについて質問する..." onkeydown="if(event.key==='Enter')sendChat()" />
+        <button onclick="sendChat()">送信 ↗</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="test" class="panel">
+    <select class="cat-select" id="test-category">
+      <option value="all">全カテゴリからランダム出題</option>
+      <option value="strategy">戦略（現状認識・目標設定・方針策定）</option>
+      <option value="team">チームビルディング・組織</option>
+      <option value="activity">活動推進・評価</option>
+      <option value="people">ピープルマネジメント</option>
+      <option value="mindset">心得</option>
+    </select>
+    <button class="gen-test-btn" onclick="generateTest()">問題を生成する ↗</button>
+    <div id="test-area"></div>
+  </div>
+
+  <div id="check" class="panel">
+    <div id="check-area"></div>
+    <button class="analyze-btn" onclick="analyzeCheck()">チェック結果をAIに分析してもらう ↗</button>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `あなたはマネジメントトレーニングの専門コーチです。以下のトレーニング内容を熟知しており、マネージャーへの実践的なアドバイスを日本語で提供します。
+
+【60の型（主要内容）】
+現状認識: 2.チームの役割, 3.貢献モデル, 4.上司のスタイル, 5.キャッチアップ
+チーム目標設定: 6.野心的な目標(チャレンジゾーンで設定), 7.目標ゾーン, 8.状態目標(定量＋定性), 9.2種類の目標(実行力型・変革型), 10.目標の修正, 11.挑戦の評価, 12.意義(社会軸・市場軸・自者軸)
+方針策定と運用: 13.方針(業務方針・戦略方針), 14.戦略方針(3つ程度), 15.方針の変更, 16.起点(トップダウン・ボトムアップ), 17.初期の成果, 18.モメンタム(チームの勢い), 19.GPKa(Goal-Policy-Key Driver-Action)
+チームビルディング: 20.組織体制パターン, 21.直接関与・間接関与, 22.関与方針(共同ワーク・トライ・定点確認・お任せ), 23.タイプ・Will・Can, 24-27.Will関連, 28.組織図の計画, 29.計画的育成, 30-33.採用・オンボーディング
+活動推進: 34.業務整理, 35.権限設計, 36.権限委譲(合格点で任せる・撤回条件), 37.ルール, 38.相互理解, 39.情報連携3点セット, 40.推進システム, 41.議論の場作り(4名まで), 42.意思決定のあり方, 43.ミーティングマネジメント(6項目)
+評価: 44.個人目標設定, 45.評価プロセス, 46.事実の記録, 47.評価ギフト, 48.変更運用と評価
+ピープルマネジメント: 49.信頼関係3点セット(自己開示・傾聴・教えてもらう), 50.感情移入関係の回避, 51.見る, 52.指示の深度(シニア・ジュニア), 53.3つの技術と使い分け, 54.ティーチング, 55-59.コーチング(目標達成・要因分析・経験学習・キャリア構築), 60.フィードバック(開口一番で一気に)
+
+【心得カテゴリ】
+状況判断と器, チャレンジ, 自分の頭で・自分の言葉で, 本質的なことだけやる, メンバーから教えてもらう, メンバーの人生を預かる, 才能を開花させる, 見られている自覚, 自己成長に務める, メンバーを「がっかり」させない, 自分を知り自分に勝つ, メンバーに向き合う
+
+回答は具体的かつ実践的に。型番号を引用して説明すると良い。300字以内を目安にコンパクトに答えること。`;
+
+const TEST_SYSTEM = `あなたはマネジメントトレーニングのテスト問題作成者です。指定されたカテゴリから4択問題を1問作成し、JSON形式のみで返してください。前置きや説明文は不要です。
+
+JSON形式（これだけ出力）:
+{
+  "category": "カテゴリ名",
+  "question": "問題文",
+  "options": ["選択肢A", "選択肢B", "選択肢C", "選択肢D"],
+  "correct": 0,
+  "explanation": "解説文（どの型のどの概念か含めて）"
+}`;
+
+const categoryMap = {
+  all: '全カテゴリ（戦略・チームビルディング・活動推進・評価・ピープルマネジメント・心得）からランダムに',
+  strategy: '戦略（現状認識・チーム目標設定・方針策定と運用・GPKa）',
+  team: 'チームビルディング（組織体制・関与方針・Will・Can・採用・育成）',
+  activity: '活動推進と評価（業務整理・権限委譲・ルール・ミーティング・評価プロセス）',
+  people: 'ピープルマネジメント（信頼関係・ティーチング・コーチング・フィードバック）',
+  mindset: 'マネージャーの心得（状況判断・チャレンジ・自己成長・メンバーとの向き合い方）'
+};
+
+const checkItems = {
+  "状況判断と器": ["平時と有事を見極め行動するということを心得ているか", "大きな器をもてているか"],
+  "チャレンジ": ["自ら変化を創るということを心得ているか", "必要なら批判も覚悟でチャレンジをするということを心得ているか", "チャレンジは人や仕組み任せにせず、自らの熱狂と行動から始めるということを心得ているか", "熱狂を業務時間外に持ち込みメンバーを巻き込まないということを心得ているか"],
+  "自分の頭で・自分の言葉で": ["自分の頭で考え、自分の言葉で語るということを心得ているか", "自分の担当領域について社内・社外の誰よりも考えるということを心得ているか", "自分の意思としての指示しかメンバーにしないということを心得ているか"],
+  "本質的なことだけやる": ["仕事も会話も重要な論点にフォーカスするということを心得ているか", "働き方ではなく成果に注目してメンバーに指摘をするということを心得ているか", "目的思考を貫くということを心得ているか"],
+  "メンバーから教えてもらう": ["メンバーの意見を重宝するということを心得ているか", "メンバーからモノを言ってもらえるためには努力が必要であるということを心得ているか", "自分がチームの中で一番できると思うことでメンバーが絶望しモノを言ってもらえなくなるということを心得ているか"],
+  "メンバーの人生を預かる": ["メンバーの人生に大きな影響がある自覚ということを心得ているか", "数字の話に偏りすぎず意義の話をしっかりするということを心得ているか", "目的・目標達成のためにメンバーを利用しないということを心得ているか"],
+  "才能を開花させる": ["1つの才能も無駄にしないということを心得ているか", "みんな頑張ろうとしているという前提に立ちメンバーと向き合うということを心得ているか", "メンバーは実力で評価するということを心得ているか", "メンバーのモメンタムを作るということを心得ているか"],
+  "見られている自覚": ["あなたはメンバーに見られているという自覚と行動をするべきであると心得ているか", "メンバーの前で会社や上司の陰口を言わないということを心得ているか", "1つ1つの言葉に細心の注意をということを心得ているか"],
+  "自己成長に務める": ["自分・チームの発展のためどんなことも他責にせず自責を問うということを心得ているか", "自分が成長角度でNo1であるべきということを心得ているか"],
+  "メンバーを「がっかり」させない": ["どんな提案もまずはノリよく受け止めてみることから始めるということを心得ているか", "過去の栄光にしがみついていては誰もついてこないということを心得ているか", "任せるというのは慎重に熟慮を重ねて言うべきであるということを心得ているか"],
+  "自分を知り自分に勝つ": ["自分についてのwhyを理解すべきということを心得ているか", "仕事と人生の判断を分けるということを心得ているか"],
+  "メンバーに向き合う": ["敬意と感謝をもち、わかるまでしつこく聞くということを心得ているか", "相手の立場になり、分かり合うということを心得ているか", "メンバーに対し、見返りを求めず与え続けるということを心得ているか"]
+};
+
+let chatHistory = [];
+let currentTest = null;
+let answered = false;
+let score = 0;
+let total = 0;
+let checkData = {};
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tab).classList.add('active');
+  if (tab === 'check' && document.getElementById('check-area').innerHTML === '') renderCheckSheet();
+}
+
+async function callClaude(messages, system) {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system, messages })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text;
+}
+
+function addMessage(text, role) {
+  const box = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addMessage(text, 'user');
+  chatHistory.push({ role: 'user', content: text });
+  const loading = addMessage('考え中...', 'loading');
+  try {
+    const reply = await callClaude(chatHistory, SYSTEM_PROMPT);
+    loading.remove();
+    addMessage(reply, 'ai');
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    loading.remove();
+    addMessage('エラー: ' + e.message, 'ai');
+  }
+}
+
+function quickAsk(text) {
+  document.getElementById('chat-input').value = text;
+  sendChat();
+  document.querySelectorAll('.tab')[0].click();
+}
+
+async function generateTest() {
+  const cat = document.getElementById('test-category').value;
+  const area = document.getElementById('test-area');
+  area.innerHTML = '<div style="text-align:center;color:#999;padding:2rem;font-size:14px;">問題を生成中...</div>';
+  answered = false;
+  try {
+    const raw = await callClaude([{ role: 'user', content: categoryMap[cat] + 'についての問題を1問生成してください' }], TEST_SYSTEM);
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const q = JSON.parse(clean);
+    currentTest = q;
+    renderTest(q);
+  } catch(e) {
+    area.innerHTML = '<div style="color:#999;font-size:14px;padding:1rem;">生成に失敗しました。再度お試しください。</div>';
+  }
+}
+
+function renderTest(q) {
+  const area = document.getElementById('test-area');
+  area.innerHTML = `
+    <div class="score-row"><span class="score-label">スコア</span><span class="score-val">${score} / ${total}</span></div>
+    <div class="test-card">
+      <div class="test-cat">${q.category}</div>
+      <div class="test-q">${q.question}</div>
+      <div class="test-options">
+        ${q.options.map((o, i) => `<button class="test-opt" onclick="answerTest(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+      </div>
+      <div id="explanation"></div>
+    </div>
+    <button class="next-btn" onclick="generateTest()" style="display:none;" id="next-btn">次の問題 →</button>`;
+}
+
+function answerTest(idx) {
+  if (answered) return;
+  answered = true;
+  total++;
+  const q = currentTest;
+  document.querySelectorAll('.test-opt').forEach((b, i) => {
+    if (i === q.correct) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+    b.onclick = null;
+  });
+  if (idx === q.correct) score++;
+  document.getElementById('explanation').innerHTML = `<div class="explanation">💡 ${q.explanation}</div>`;
+  document.getElementById('next-btn').style.display = 'block';
+}
+
+function renderCheckSheet() {
+  let html = '';
+  Object.entries(checkItems).forEach(([cat, items]) => {
+    html += `<div class="check-section"><div class="check-section-title">${cat}</div>`;
+    items.forEach((item, i) => {
+      const key = (cat + '_' + i).replace(/[^\w]/g, '_');
+      html += `<div class="check-item">
+        <div class="check-text">${item}</div>
+        <div class="check-stars" id="stars_${key}">
+          ${[1,2,3,4,5].map(s => `<div class="star" onclick="setStar('${key}',${s})">${s}</div>`).join('')}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  html += '<div id="check-result-area"></div>';
+  document.getElementById('check-area').innerHTML = html;
+}
+
+function setStar(key, val) {
+  checkData[key] = val;
+  document.querySelectorAll(`#stars_${key} .star`).forEach((s, i) => {
+    s.classList.toggle('on', i < val);
+  });
+}
+
+async function analyzeCheck() {
+  if (Object.keys(checkData).length === 0) { alert('まずチェックシートに点数をつけてください'); return; }
+  const resultArea = document.getElementById('check-result-area');
+  resultArea.innerHTML = '<div style="text-align:center;color:#999;padding:1rem;font-size:14px;">分析中...</div>';
+  const summary = Object.entries(checkItems).map(([cat, items]) => {
+    const scores = items.map((_, i) => checkData[(cat+'_'+i).replace(/[^\w]/g,'_')] || 0);
+    return `${cat}: 平均${(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1)}点（${scores.join(',')}）`;
+  }).join('\n');
+  try {
+    const reply = await callClaude([{ role:'user', content:`心得チェック結果:\n${summary}\n\n低スコアのカテゴリを特定し具体的な改善アドバイスを300字以内で。` }], SYSTEM_PROMPT);
+    resultArea.innerHTML = `<div class="check-result"><strong style="font-size:13px;">AI分析結果</strong><br><br><div style="font-size:13px;color:#444;line-height:1.8;">${reply.replace(/\n/g,'<br>')}</div></div>`;
+  } catch(e) {
+    resultArea.innerHTML = '<div style="color:#999;font-size:13px;padding:1rem;">分析に失敗しました。</div>';
+  }
+}
+</script>
+</body>
+</html>
