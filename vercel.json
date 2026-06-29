@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "chat.js": {
-      "runtime": "node@20"
-    }
-  },
   "routes": [
     { "src": "/api/chat", "dest": "/chat.js" },
     { "src": "/(.*)", "dest": "/index.html" }
