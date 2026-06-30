@@ -5,6 +5,11 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   try {
+    let body = req.body;
+    if (typeof body === 'string') {
+      body = JSON.parse(body);
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -12,10 +17,11 @@ export default async function handler(req, res) {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify(body),
     });
-    const data = await response.json();
-    res.status(response.status).json(data);
+
+    const text = await response.text();
+    res.status(response.status).setHeader('Content-Type', 'application/json').send(text);
   } catch (e) {
     res.status(500).json({ error: { message: e.message } });
   }
