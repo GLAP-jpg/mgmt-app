@@ -4,106 +4,254 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>マネジメントトレーニング AIサポート</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #f0eee7;
+  --border: #e3e0d6;
+  --border-strong: #cfcabb;
+  --text-1: #1c1b18;
+  --text-2: #5c594f;
+  --text-3: #94907f;
+  --accent: #2f5d4f;
+  --accent-light: #e3ede9;
+  --accent-dark: #1d4338;
+  --gold: #b4862f;
+  --gold-light: #faf2e1;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-card: 0 1px 2px rgba(28,27,24,0.04), 0 4px 16px rgba(28,27,24,0.04);
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif; background: #f8f7f4; color: #1a1a1a; }
-.app { max-width: 800px; margin: 0 auto; padding: 1rem; }
-.header { text-align: center; padding: 2rem 1rem 1.5rem; border-bottom: 1px solid #e5e3dc; margin-bottom: 1.5rem; }
-.header h1 { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
-.header p { font-size: 14px; color: #666; }
-.mode-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
-.tab { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 14px; cursor: pointer; text-align: center; color: #666; transition: all 0.15s; }
-.tab.active { background: #f0efea; color: #1a1a1a; font-weight: 500; border-color: #aaa; }
+html, body { background: var(--bg); }
+body { font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; color: var(--text-1); -webkit-font-smoothing: antialiased; }
+
+.app { max-width: 880px; margin: 0 auto; padding: 0 1.25rem 3rem; }
+
+.header { text-align: center; padding: 3rem 1rem 2rem; }
+.header .icon-badge { width: 56px; height: 56px; border-radius: 16px; background: var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+.header .icon-badge i { font-size: 28px; color: #fff; }
+.header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; color: var(--text-1); }
+.header p { font-size: 14.5px; color: var(--text-2); line-height: 1.6; }
+
+.mode-tabs { display: flex; gap: 6px; margin-bottom: 1.75rem; background: var(--surface-2); padding: 5px; border-radius: var(--radius-md); }
+.tab { flex: 1; padding: 11px 8px; border: none; border-radius: 9px; background: transparent; font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; color: var(--text-2); transition: all 0.18s ease; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.tab i { font-size: 17px; }
+.tab.active { background: var(--surface); color: var(--accent-dark); box-shadow: var(--shadow-card); font-weight: 700; }
+.tab:hover:not(.active) { color: var(--text-1); }
+
 .panel { display: none; }
-.panel.active { display: block; }
-.chat-box { border: 1px solid #e5e3dc; border-radius: 12px; overflow: hidden; background: #fff; }
-.messages { height: 420px; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 12px; }
-.msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.7; }
-.msg.user { align-self: flex-end; background: #e8f0fb; }
-.msg.ai { align-self: flex-start; background: #f0efea; }
-.msg.loading { align-self: flex-start; color: #999; font-style: italic; background: #f0efea; }
-.chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #e5e3dc; background: #faf9f6; }
-.chat-input-row input { flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; font-family: inherit; }
-.chat-input-row input:focus { outline: none; border-color: #999; }
-.chat-input-row button { padding: 9px 18px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; font-family: inherit; transition: background 0.1s; }
-.chat-input-row button:hover { background: #f0efea; }
-.quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.quick-btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 12px; cursor: pointer; color: #555; font-family: inherit; transition: background 0.1s; }
-.quick-btn:hover { background: #f0efea; }
-.test-card { background: #fff; border: 1px solid #e5e3dc; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
-.test-cat { font-size: 11px; color: #999; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-.test-q { font-size: 15px; margin-bottom: 1rem; line-height: 1.6; }
-.test-options { display: flex; flex-direction: column; gap: 6px; }
-.test-opt { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 14px; background: #fff; text-align: left; transition: all 0.15s; font-family: inherit; }
-.test-opt:hover { background: #f0efea; }
-.test-opt.correct { border-color: #1D9E75; background: #E1F5EE; color: #0F6E56; }
-.test-opt.wrong { border-color: #E24B4A; background: #FCEBEB; color: #A32D2D; }
-.explanation { margin-top: 12px; padding: 10px 14px; background: #f0efea; border-radius: 8px; font-size: 13px; color: #555; line-height: 1.7; }
-.score-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; margin-bottom: 1rem; }
-.score-label { font-size: 13px; color: #666; }
-.score-val { font-size: 18px; font-weight: 500; }
-.check-section { margin-bottom: 1.5rem; }
-.check-section-title { font-size: 13px; font-weight: 500; color: #666; padding: 8px 0; border-bottom: 1px solid #e5e3dc; margin-bottom: 8px; }
-.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0efea; }
-.check-text { flex: 1; font-size: 13px; line-height: 1.6; }
-.check-stars { display: flex; gap: 3px; flex-shrink: 0; }
-.star { width: 22px; height: 22px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #aaa; background: #fff; transition: all 0.1s; }
-.star.on { background: #FAC775; border-color: #EF9F27; color: #633806; }
-.check-result { padding: 1.25rem; background: #f0efea; border-radius: 12px; margin-top: 1rem; }
-.next-btn, .gen-test-btn, .analyze-btn { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; font-family: inherit; transition: background 0.1s; }
-.next-btn:hover, .gen-test-btn:hover, .analyze-btn:hover { background: #f0efea; }
-.cat-select { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 14px; font-family: inherit; margin-bottom: 8px; }
+.panel.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.section-label i { font-size: 15px; }
+
+.quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+.quick-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-1); font-family: inherit; text-align: left; transition: all 0.15s ease; line-height: 1.4; }
+.quick-btn:hover { border-color: var(--accent); background: var(--accent-light); transform: translateY(-1px); box-shadow: var(--shadow-card); }
+.quick-btn .qicon { flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; background: var(--accent-light); color: var(--accent-dark); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+
+.chat-box { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-card); }
+.messages { height: 440px; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; }
+.messages::-webkit-scrollbar { width: 6px; }
+.messages::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+.msg { display: flex; gap: 10px; max-width: 88%; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.msg-avatar { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.msg.ai .msg-avatar { background: var(--accent); color: #fff; }
+.msg.user .msg-avatar { background: var(--gold-light); color: var(--gold); }
+.msg-bubble { padding: 11px 15px; border-radius: var(--radius-md); font-size: 14.5px; line-height: 1.75; }
+.msg.user .msg-bubble { background: var(--accent); color: #fff; border-top-right-radius: 4px; }
+.msg.ai .msg-bubble { background: var(--surface-2); color: var(--text-1); border-top-left-radius: 4px; }
+.msg.loading .msg-bubble { color: var(--text-3); font-style: italic; display: flex; align-items: center; gap: 8px; }
+.dot-flash { display: inline-flex; gap: 3px; }
+.dot-flash span { width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); animation: dotflash 1.2s infinite ease-in-out; }
+.dot-flash span:nth-child(2) { animation-delay: 0.2s; }
+.dot-flash span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotflash { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+.chat-input-row { display: flex; gap: 8px; padding: 14px; border-top: 1px solid var(--border); background: var(--surface-2); }
+.chat-input-row input { flex: 1; padding: 11px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 14.5px; background: var(--surface); font-family: inherit; color: var(--text-1); transition: border-color 0.15s; }
+.chat-input-row input:focus { outline: none; border-color: var(--accent); }
+.chat-input-row input::placeholder { color: var(--text-3); }
+.send-btn { width: 44px; height: 44px; border-radius: var(--radius-md); border: none; background: var(--accent); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; transition: background 0.15s; flex-shrink: 0; }
+.send-btn:hover { background: var(--accent-dark); }
+.send-btn:disabled { background: var(--border-strong); cursor: not-allowed; }
+
+.cat-select-wrap { position: relative; margin-bottom: 12px; }
+.cat-select { width: 100%; padding: 12px 40px 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 14px; font-family: inherit; color: var(--text-1); appearance: none; cursor: pointer; }
+.cat-select-wrap::after { content: '\ea5f'; font-family: 'tabler-icons'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; font-size: 16px; }
+
+.gen-test-btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius-md); background: var(--accent); cursor: pointer; font-size: 14.5px; font-weight: 700; font-family: inherit; color: #fff; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.15s; }
+.gen-test-btn:hover { background: var(--accent-dark); }
+.gen-test-btn i { font-size: 17px; }
+
+.test-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-card); }
+.test-cat-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: var(--accent-dark); background: var(--accent-light); padding: 5px 11px; border-radius: 20px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.03em; }
+.test-q { font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; line-height: 1.65; color: var(--text-1); }
+.test-options { display: flex; flex-direction: column; gap: 8px; }
+.test-opt { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; font-size: 14.5px; background: var(--surface); text-align: left; transition: all 0.15s ease; font-family: inherit; color: var(--text-1); }
+.test-opt:hover { background: var(--surface-2); border-color: var(--border-strong); }
+.opt-letter { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700; color: var(--text-2); }
+.test-opt.correct { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
+.test-opt.correct .opt-letter { background: var(--accent); color: #fff; }
+.test-opt.wrong { border-color: #c44; background: #fbeaea; color: #8a2e2e; }
+.test-opt.wrong .opt-letter { background: #c44; color: #fff; }
+.explanation { margin-top: 16px; padding: 14px 16px; background: var(--gold-light); border-radius: var(--radius-md); font-size: 13.5px; color: var(--text-1); line-height: 1.75; display: flex; gap: 10px; }
+.explanation i { color: var(--gold); font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.score-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 1rem; }
+.score-label { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
+.score-val { font-size: 20px; font-weight: 700; color: var(--accent-dark); }
+
+.check-intro { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; background: var(--accent-light); border-radius: var(--radius-md); margin-bottom: 1.5rem; font-size: 13px; color: var(--accent-dark); line-height: 1.7; }
+.check-intro i { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+
+.check-section { margin-bottom: 1.75rem; }
+.check-section-title { font-size: 14px; font-weight: 700; color: var(--text-1); padding: 0 0 10px; border-bottom: 2px solid var(--accent); margin-bottom: 12px; display: inline-block; }
+.check-item { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: var(--radius-md); transition: background 0.15s; }
+.check-item:hover { background: var(--surface-2); }
+.check-text { flex: 1; font-size: 13.5px; line-height: 1.6; color: var(--text-1); }
+.check-stars { display: flex; gap: 4px; flex-shrink: 0; }
+.star { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text-3); background: var(--surface); transition: all 0.12s; }
+.star.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+.check-result-card { padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-top: 1.25rem; box-shadow: var(--shadow-card); }
+.check-result-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--accent-dark); }
+.check-result-title i { font-size: 18px; }
+
+.next-btn { width: 100%; padding: 12px; margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-1); font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; }
+.next-btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
+
+.analyze-btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius-md); background: var(--accent); cursor: pointer; font-size: 14.5px; font-weight: 700; font-family: inherit; color: #fff; margin-top: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.15s; }
+.analyze-btn:hover { background: var(--accent-dark); }
+
+.hero-banner { display: flex; align-items: center; gap: 1.25rem; background: var(--accent); border-radius: var(--radius-lg); padding: 1.5rem 1.75rem; margin-bottom: 1.75rem; overflow: hidden; position: relative; }
+.hero-banner-text h2 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.hero-banner-text p { font-size: 12.5px; color: rgba(255,255,255,0.78); line-height: 1.6; }
+.hero-banner-icon { font-size: 38px; color: rgba(255,255,255,0.9); flex-shrink: 0; }
+
+.learn-toolbar { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+.learn-search-wrap { position: relative; flex: 1; }
+.learn-search-wrap i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 16px; }
+.learn-search-wrap input { width: 100%; padding: 12px 14px 12px 38px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 14px; font-family: inherit; background: var(--surface); color: var(--text-1); }
+.learn-search-wrap input:focus { outline: none; border-color: var(--accent); }
+
+.learn-cat-group { margin-bottom: 1.75rem; }
+.learn-cat-title { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.learn-cat-title .num-badge { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.learn-cat-title h3 { font-size: 15.5px; font-weight: 700; color: var(--text-1); }
+
+.learn-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); margin-bottom: 8px; overflow: hidden; transition: border-color 0.15s; }
+.learn-card:hover { border-color: var(--border-strong); }
+.learn-card-head { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; }
+.learn-card-no { flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px; background: var(--gold-light); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 700; }
+.learn-card-title { flex: 1; font-size: 14.5px; font-weight: 500; color: var(--text-1); }
+.learn-card-chevron { color: var(--text-3); font-size: 16px; transition: transform 0.2s; flex-shrink: 0; }
+.learn-card.open .learn-card-chevron { transform: rotate(180deg); }
+.learn-card-body { display: none; padding: 0 16px 16px 60px; font-size: 13.5px; color: var(--text-2); line-height: 1.8; }
+.learn-card.open .learn-card-body { display: block; }
+.learn-card-actions { margin-top: 10px; }
+.learn-ask-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 12.5px; color: var(--accent-dark); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.learn-ask-btn:hover { background: var(--accent-light); border-color: var(--accent); }
+
+.kokoroe-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 13px 16px; margin-bottom: 8px; font-size: 13.5px; color: var(--text-1); line-height: 1.7; display: flex; gap: 10px; align-items: flex-start; }
+.kokoroe-card i { color: var(--accent); font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+
+.no-results { text-align: center; padding: 3rem 1rem; color: var(--text-3); font-size: 14px; }
+.no-results i { font-size: 32px; display: block; margin: 0 auto 12px; }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
+    <div class="icon-badge"><i class="ti ti-target-arrow" aria-hidden="true"></i></div>
     <h1>マネジメントトレーニング AIサポート</h1>
-    <p>60の型 × 心得チェックシートを使ったAI学習・テストアプリ</p>
+    <p>60の型 × 心得チェックシートをもとに、AIが学習・相談・テストをサポートします</p>
   </div>
 
   <div class="mode-tabs">
-    <div class="tab active" onclick="switchTab('consult', this)">💬 AI相談</div>
-    <div class="tab" onclick="switchTab('test', this)">📝 テスト</div>
-    <div class="tab" onclick="switchTab('check', this)">✅ 心得チェック</div>
+    <button class="tab active" onclick="switchTab('learn', this)"><i class="ti ti-book-2" aria-hidden="true"></i>学習</button>
+    <button class="tab" onclick="switchTab('consult', this)"><i class="ti ti-message-circle" aria-hidden="true"></i>AI相談</button>
+    <button class="tab" onclick="switchTab('test', this)"><i class="ti ti-clipboard-check" aria-hidden="true"></i>テスト</button>
+    <button class="tab" onclick="switchTab('check', this)"><i class="ti ti-checklist" aria-hidden="true"></i>心得チェック</button>
   </div>
 
-  <div id="consult" class="panel active">
-    <div class="quick-btns">
-      <button class="quick-btn" onclick="quickAsk('コーチングとフィードバックの違いを教えてください')">コーチングとフィードバックの違い</button>
-      <button class="quick-btn" onclick="quickAsk('GPKaとは何ですか？どう使いますか？')">GPKaの使い方</button>
-      <button class="quick-btn" onclick="quickAsk('権限委譲でよくある失敗パターンは？')">権限委譲の失敗</button>
-      <button class="quick-btn" onclick="quickAsk('メンバーのWillをどうやって引き出せばいい？')">Willの引き出し方</button>
-      <button class="quick-btn" onclick="quickAsk('野心的な目標設定の具体的な方法を教えてください')">野心的な目標設定</button>
-      <button class="quick-btn" onclick="quickAsk('チームのモメンタムを高める方法は？')">モメンタムの高め方</button>
+  <div id="learn" class="panel active">
+    <div class="learn-toolbar">
+      <div class="cat-select-wrap" style="flex:1; margin-bottom:0;">
+        <select class="cat-select" id="learn-filter" onchange="renderLearn()">
+          <option value="all">すべてのカテゴリ</option>
+        </select>
+      </div>
+      <div class="learn-search-wrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="text" id="learn-search" placeholder="型・キーワードで検索" oninput="renderLearn()" />
+      </div>
+    </div>
+    <div id="learn-area"></div>
+  </div>
+
+  <div id="consult" class="panel">
+    <div class="section-label"><i class="ti ti-bulb" aria-hidden="true"></i>よくある質問</div>
+    <div class="quick-grid">
+      <button class="quick-btn" onclick="quickAsk('コーチングとフィードバックの違いを教えてください')"><span class="qicon"><i class="ti ti-arrows-diff" aria-hidden="true"></i></span>コーチングとフィードバックの違い</button>
+      <button class="quick-btn" onclick="quickAsk('GPKaとは何ですか？どう使いますか？')"><span class="qicon"><i class="ti ti-route" aria-hidden="true"></i></span>GPKaの使い方</button>
+      <button class="quick-btn" onclick="quickAsk('権限委譲でよくある失敗パターンは？')"><span class="qicon"><i class="ti ti-alert-triangle" aria-hidden="true"></i></span>権限委譲の失敗</button>
+      <button class="quick-btn" onclick="quickAsk('メンバーのWillをどうやって引き出せばいい？')"><span class="qicon"><i class="ti ti-compass" aria-hidden="true"></i></span>Willの引き出し方</button>
+      <button class="quick-btn" onclick="quickAsk('野心的な目標設定の具体的な方法を教えてください')"><span class="qicon"><i class="ti ti-flag" aria-hidden="true"></i></span>野心的な目標設定</button>
+      <button class="quick-btn" onclick="quickAsk('チームのモメンタムを高める方法は？')"><span class="qicon"><i class="ti ti-trending-up" aria-hidden="true"></i></span>モメンタムの高め方</button>
     </div>
     <div class="chat-box">
       <div class="messages" id="chat-messages">
-        <div class="msg ai">こんにちは！マネジメントトレーニングシートの内容について、何でも相談してください。<br><br>60の型・心得・実践事例をもとに、具体的なアドバイスをお伝えします。</div>
+        <div class="msg ai">
+          <div class="msg-avatar"><i class="ti ti-target-arrow" aria-hidden="true"></i></div>
+          <div class="msg-bubble">こんにちは。マネジメントトレーニングシートの内容について、何でも相談してください。<br><br>60の型・心得・実践事例をもとに、具体的なアドバイスをお伝えします。</div>
+        </div>
       </div>
       <div class="chat-input-row">
         <input type="text" id="chat-input" placeholder="マネジメントについて質問する..." onkeydown="if(event.key==='Enter')sendChat()" />
-        <button onclick="sendChat()">送信 ↗</button>
+        <button class="send-btn" onclick="sendChat()" aria-label="送信"><i class="ti ti-send-2" aria-hidden="true"></i></button>
       </div>
     </div>
   </div>
 
   <div id="test" class="panel">
-    <select class="cat-select" id="test-category">
-      <option value="all">全カテゴリからランダム出題</option>
-      <option value="strategy">戦略（現状認識・目標設定・方針策定）</option>
-      <option value="team">チームビルディング・組織</option>
-      <option value="activity">活動推進・評価</option>
-      <option value="people">ピープルマネジメント</option>
-      <option value="mindset">心得</option>
-    </select>
-    <button class="gen-test-btn" onclick="generateTest()">問題を生成する ↗</button>
+    <div class="hero-banner">
+      <div class="hero-banner-icon"><i class="ti ti-trophy" aria-hidden="true"></i></div>
+      <div class="hero-banner-text">
+        <h2>理解度をテストする</h2>
+        <p>カテゴリを選んで4択問題に挑戦。間違えても解説でしっかり復習できます。</p>
+      </div>
+    </div>
+    <div class="cat-select-wrap">
+      <select class="cat-select" id="test-category">
+        <option value="all">全カテゴリからランダム出題</option>
+        <option value="strategy">戦略（現状認識・目標設定・方針策定）</option>
+        <option value="team">チームビルディング・組織</option>
+        <option value="activity">活動推進・評価</option>
+        <option value="people">ピープルマネジメント</option>
+        <option value="mindset">心得</option>
+      </select>
+    </div>
+    <button class="gen-test-btn" onclick="generateTest()"><i class="ti ti-sparkles" aria-hidden="true"></i>問題を生成する</button>
     <div id="test-area"></div>
   </div>
 
   <div id="check" class="panel">
+    <div class="check-intro">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span>「マネージャーの心得」の各項目について、できている度合いを1〜5で評価してください。最後にAIが弱点を分析します。</span>
+    </div>
     <div id="check-area"></div>
-    <button class="analyze-btn" onclick="analyzeCheck()">チェック結果をAIに分析してもらう ↗</button>
+    <button class="analyze-btn" onclick="analyzeCheck()"><i class="ti ti-chart-radar" aria-hidden="true"></i>チェック結果をAIに分析してもらう</button>
   </div>
 </div>
 
@@ -144,6 +292,139 @@ const categoryMap = {
   mindset: 'マネージャーの心得（状況判断・チャレンジ・自己成長・メンバーとの向き合い方）'
 };
 
+const learningData = {
+  categories: [
+    { name: "現状認識", items: [
+      { no: 2, title: "チームの役割", desc: "チームの役割を言語化することで、会社が求めている役割とずれないチーム活動をデザインする" },
+      { no: 3, title: "貢献モデル", desc: "チームが誰にどんな貢献をするのかということを言語化することで、チームの活動がブレないようにする" },
+      { no: 4, title: "上司のスタイル", desc: "上司のスタイルを把握し、それに合わせて初期の成果を出すことで上司の信頼を得て、やるべきチーム活動を力強く推進する" },
+      { no: 5, title: "キャッチアップ", desc: "チームの現状を素早く正確にキャッチアップすることで、素早く質の高いチームのアクションを生む" }
+    ]},
+    { name: "チーム目標設定", items: [
+      { no: 6, title: "野心的な目標", desc: "チームが力を発揮できる水準でチーム目標を設定することで、チームの発揮能力を最大化させる" },
+      { no: 7, title: "目標ゾーン", desc: "チャレンジゾーンで適切な難易度の目標を設定し、チームの発揮能力を最大化させる" },
+      { no: 8, title: "状態目標", desc: "到達地点が明確な状態目標を設定することで、チームの発揮能力を最大化させる" },
+      { no: 9, title: "2種類の目標", desc: "実行力型・変革型それぞれの目標の種類を認識し、それぞれに適した設定方法・追い方をデザインする" },
+      { no: 10, title: "目標の修正", desc: "適切な目標修正を行い、目標の効果を持続させる" },
+      { no: 11, title: "挑戦の評価", desc: "挑戦を評価するような適切な評価方針を立て、野心的な目標をチームに実装する" },
+      { no: 12, title: "意義", desc: "社会軸・市場軸・自者軸の3軸で意義を考え設定し、チームがモチベーションを保ったまま目標を追い続けるようにする" }
+    ]},
+    { name: "方針策定と運用", items: [
+      { no: 13, title: "方針", desc: "業務や戦略の方向性を示し、メンバーが自走して業務を進めるようにできる" },
+      { no: 14, title: "戦略方針", desc: "最小工数で目標達成を狙うために、3つ程度の重要な方針を掲げる" },
+      { no: 15, title: "方針の変更", desc: "適切な方針変更を行い、常に効果的な目標達成活動ができるようにする" },
+      { no: 16, title: "起点", desc: "状況に応じて、トップダウン・ボトムアップの2つ戦略方針策定の方法を使い分け、素早く質の高い戦略方針を展開する" },
+      { no: 17, title: "初期の成果", desc: "短期＊行動で最初の成果を上げ、周囲からの信頼を早期に獲得し、必要な支援や権限、リソースを得て更に成長する好循環に入る" },
+      { no: 18, title: "モメンタム", desc: "目標・方針の進捗をチームに共有し、チームを自己効力感で満たすことで、戦略の実行スピード・質を大幅に上げる" },
+      { no: 19, title: "GPKa", desc: "目標・戦略方針・Key Driver・重要アクションの要素でチームの最重要目標およびその達成プランを策定し、運用する" }
+    ]},
+    { name: "チームビルディング", items: [
+      { no: 20, title: "組織体制パターン", desc: "状況に応じた組織体制パターンを選択する" },
+      { no: 21, title: "直接関与・間接関与", desc: "メンバーのレベルに合ったマネージャー・メンバー間の距離を保つことで、メンバーが伸び伸び仕事ができるようにする" },
+      { no: 22, title: "関与方針", desc: "メンバーの仕事の種類に適した関与方法をとることで、メンバーにとって適切なサポートが得られるようにする" },
+      { no: 23, title: "タイプ・Will・Can", desc: "メンバー毎にタイプ・Will・Canを整理し、適切なアサインメントを実現する" },
+      { no: 24, title: "Willへの向き合い方", desc: "チームの成果のための大事なアセットである、メンバーのWillを把握する" },
+      { no: 25, title: "Willの引き出し方", desc: "チームの成果のための大事なアセットである、Willをメンバーから引き出す" },
+      { no: 26, title: "Willへのアドバイス", desc: "メンバーが気づいていない視点を与えて、Willを最適化してあげる" },
+      { no: 27, title: "Willのカテゴリ別対処法", desc: "Willのカテゴリ別に適切なコミュニケーションをとり、メンバーが仕事にきちんと向き合えるようにする" },
+      { no: 28, title: "組織図の計画", desc: "1年程度先までの組織図の計画を描き、変化の激しい中でも、その時必要な組織が常に整っている状態を保つ" },
+      { no: 29, title: "計画的育成", desc: "メンバーをいつまでにどういう状態にするのかという計画を策定し、育成を実行する" },
+      { no: 30, title: "採用はマネージャーの仕事", desc: "HRと現場で正しい連携をして、採用で成果を出す" },
+      { no: 31, title: "アトラクト", desc: "ヘルプ・ビジョン・メリットの3軸でアトラクトトークを整備し、競合と取り合いになる人財の内定承諾率を上げる" },
+      { no: 32, title: "メンバーの種類", desc: "正社員に拘らず、多様な選択肢の中から必要なメンバーを調達できるようにする" },
+      { no: 33, title: "オンボーディング", desc: "入社したメンバーの初期の成果をデザインし、早期に活躍できるようにする" }
+    ]},
+    { name: "活動推進", items: [
+      { no: 34, title: "業務整理", desc: "業務の重要度＊関与インパクトで自分の業務を整理し、重要な業務だけにフォーカスできるようにする" },
+      { no: 35, title: "権限設計", desc: "誰が何を決めるかをはっきりさせ、チームの業務を円滑に進める" },
+      { no: 36, title: "権限委譲", desc: "自分がやる必要のない業務を委譲し、チームの戦線を拡大していく" },
+      { no: 37, title: "ルール", desc: "チームの業務が円滑に進むために最低限守るべきことが守られるべきことで、かつ努力次第で誰でも守れることをルールとして設定する" },
+      { no: 38, title: "相互理解", desc: "メンバー同士の連携の質を上げる" },
+      { no: 39, title: "情報連携3点セット", desc: "進捗の可視化・報告・共有の3つの手法を駆使し、必要な情報連携がスムーズに行われるようにする" },
+      { no: 40, title: "推進システム", desc: "進捗の可視化・報告・共有・議論・意思決定の5項目について、自部署内及び他部署・上司との間で、円滑な情報流通と意思決定が行われるようにする" },
+      { no: 41, title: "議論の場作り", desc: "1人では生めない解を生む本質的な議論が行われるように場を設計する" },
+      { no: 42, title: "意思決定のあり方", desc: "複数のメンバーを巻き込んだ場合も、最後は意思決定者が決める" },
+      { no: 43, title: "ミーティングマネジメント", desc: "目的・目標・アジェンダ・参加者・頻度・時間の6項目を整理し、効果の高いミーティングを実施できるようにする" }
+    ]},
+    { name: "評価", items: [
+      { no: 44, title: "個人目標設定", desc: "個人が目標を自分ごとと捉え、その力を最大限発揮し続けられるように個人目標を設定する" },
+      { no: 45, title: "評価プロセス", desc: "メンバーの納得度が高く、かつ成長につながる評価を実施できるように、必要なプロセスを丁寧に実施する" },
+      { no: 46, title: "事実の記録", desc: "普段からメンバーの行動事実を記録し、納得度の高い評価を実施できるようにする" },
+      { no: 47, title: "評価ギフト", desc: "評価内容を文章で丁寧に伝達し、メンバーの成長を実現する" },
+      { no: 48, title: "変更運用と評価", desc: "変更前の目標とその進捗を記録し、評価に活用することで、変化は激しい中でもメンバーが前向きに業務に取り組めるようにする" }
+    ]},
+    { name: "ピープルマネジメントの基本", items: [
+      { no: 49, title: "信頼関係3点セット", desc: "マネージャーとメンバーが早期に信頼関係を構築できるようにするために、自己開示する、全身全霊・全人格を持って相手の話を聞く、教えてもらう、の3つを徹底する" },
+      { no: 50, title: "感情移入関係の回避", desc: "マネージャーがメンバーに正しいマネジメントができる関係性でいられるように、友人関係のような感情移入関係は避ける" },
+      { no: 51, title: "見る", desc: "メンバーがモチベーション高く仕事ができるようにする、その仕事に興味をもち、把握し、感じたことを伝えるということをやり続ける" },
+      { no: 52, title: "指示の深度", desc: "メンバーのレベルに合わせて、指示の深度を調整して指示をする" },
+      { no: 53, title: "3つの技術と使い分け", desc: "メンバーの状況に応じて、ティーチング・コーチング・フィードバックの3つの技術を使い分ける" }
+    ]},
+    { name: "ティーチング・コーチング・フィードバック", items: [
+      { no: 54, title: "ティーチング", desc: "やって見せる・事例を使う・たとえ話を使う・ナレッジを伝える・経験を話す・コンテンツを読ませるという6つの技術を駆使して、業務に必要なことをメンバーにうまく教える" },
+      { no: 55, title: "コーチングの基本", desc: "メンバーが自分で考えて自分で答えを出せるような土台作りを徹底する" },
+      { no: 56, title: "目標達成コーチング", desc: "メンバーが自分で目標達成方法を考え実行できるよう、フレームに沿ってコーチングする" },
+      { no: 57, title: "要因分析コーチング", desc: "メンバーが自分で要因を発見し次のアクションが実行できるよう、フレームに沿ってコーチングする" },
+      { no: 58, title: "経験学習コーチング", desc: "メンバーが経験から学んだことを言語化し、今後学びを活用できるよう、フレームに沿ってコーチングする" },
+      { no: 59, title: "キャリア構築コーチング", desc: "メンバーのキャリアイメージをクリアできるよう、フレームに沿ってコーチングする" },
+      { no: 60, title: "フィードバック", desc: "相手を心から気に掛ける＊はっきり伝える、というポジションに入り、相手が気付いていない事実を伝えて、相手を立て直す" }
+    ]}
+  ]
+};
+
+function toggleLearnCard(el) {
+  el.classList.toggle('open');
+}
+
+function renderLearn() {
+  const filter = document.getElementById('learn-filter').value;
+  const query = document.getElementById('learn-search').value.trim().toLowerCase();
+  const area = document.getElementById('learn-area');
+  let html = '';
+  let matchCount = 0;
+
+  if (filter !== 'kokoroe') {
+    learningData.categories.forEach((cat, ci) => {
+      const filteredItems = cat.items.filter(it => {
+        if (!query) return true;
+        return it.title.toLowerCase().includes(query) || it.desc.toLowerCase().includes(query) || String(it.no).includes(query);
+      });
+      if (filteredItems.length === 0) return;
+      matchCount += filteredItems.length;
+      html += `<div class="learn-cat-group"><div class="learn-cat-title"><span class="num-badge">${ci+1}</span><h3>${cat.name}</h3></div>`;
+      filteredItems.forEach(it => {
+        html += `<div class="learn-card" id="learncard_${it.no}">
+          <div class="learn-card-head" onclick="toggleLearnCard(document.getElementById('learncard_${it.no}'))">
+            <div class="learn-card-no">${it.no}</div>
+            <div class="learn-card-title">${it.title}</div>
+            <i class="ti ti-chevron-down learn-card-chevron" aria-hidden="true"></i>
+          </div>
+          <div class="learn-card-body">
+            ${it.desc}
+            <div class="learn-card-actions">
+              <button class="learn-ask-btn" onclick="event.stopPropagation(); learnAsk(${it.no}, '${it.title.replace(/'/g, "\\'")}')"><i class="ti ti-message-circle-2" aria-hidden="true"></i>AIに詳しく聞く</button>
+            </div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+  }
+
+  if (matchCount === 0) {
+    html = `<div class="no-results"><i class="ti ti-search-off" aria-hidden="true"></i>該当する項目が見つかりませんでした</div>`;
+  }
+  area.innerHTML = html;
+}
+
+function learnAsk(no, title) {
+  document.querySelectorAll('.tab')[1].click();
+  document.getElementById('chat-input').value = `${no}.${title} について詳しく教えてください`;
+  sendChat();
+}
+
+let checkItemsList = [];
+
 const checkItems = {
   "状況判断と器": ["平時と有事を見極め行動するということを心得ているか", "大きな器をもてているか"],
   "チャレンジ": ["自ら変化を創るということを心得ているか", "必要なら批判も覚悟でチャレンジをするということを心得ているか", "チャレンジは人や仕組み任せにせず、自らの熱狂と行動から始めるということを心得ているか", "熱狂を業務時間外に持ち込みメンバーを巻き込まないということを心得ているか"],
@@ -158,6 +439,8 @@ const checkItems = {
   "自分を知り自分に勝つ": ["自分についてのwhyを理解すべきということを心得ているか", "仕事と人生の判断を分けるということを心得ているか"],
   "メンバーに向き合う": ["敬意と感謝をもち、わかるまでしつこく聞くということを心得ているか", "相手の立場になり、分かり合うということを心得ているか", "メンバーに対し、見返りを求めず与え続けるということを心得ているか"]
 };
+
+checkItemsList = Object.entries(checkItems).map(([cat, items]) => ({ cat, items }));
 
 let chatHistory = [];
 let currentTest = null;
@@ -187,12 +470,17 @@ async function callClaude(messages, system) {
 
 function addMessage(text, role) {
   const box = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  div.innerHTML = text.replace(/\n/g, '<br>');
-  box.appendChild(div);
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + role;
+  const avatarIcon = role === 'user' ? 'ti-user' : 'ti-target-arrow';
+  if (role === 'loading') {
+    wrap.innerHTML = `<div class="msg-avatar" style="background:var(--accent);color:#fff;"><i class="ti ti-target-arrow" aria-hidden="true"></i></div><div class="msg-bubble"><span class="dot-flash"><span></span><span></span><span></span></span></div>`;
+  } else {
+    wrap.innerHTML = `<div class="msg-avatar"><i class="ti ${avatarIcon}" aria-hidden="true"></i></div><div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>`;
+  }
+  box.appendChild(wrap);
   box.scrollTop = box.scrollHeight;
-  return div;
+  return wrap;
 }
 
 async function sendChat() {
@@ -202,7 +490,7 @@ async function sendChat() {
   input.value = '';
   addMessage(text, 'user');
   chatHistory.push({ role: 'user', content: text });
-  const loading = addMessage('考え中...', 'loading');
+  const loading = addMessage('', 'loading ai');
   try {
     const reply = await callClaude(chatHistory, SYSTEM_PROMPT);
     loading.remove();
@@ -217,13 +505,12 @@ async function sendChat() {
 function quickAsk(text) {
   document.getElementById('chat-input').value = text;
   sendChat();
-  document.querySelectorAll('.tab')[0].click();
 }
 
 async function generateTest() {
   const cat = document.getElementById('test-category').value;
   const area = document.getElementById('test-area');
-  area.innerHTML = '<div style="text-align:center;color:#999;padding:2rem;font-size:14px;">問題を生成中...</div>';
+  area.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:3rem;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:10px;"><i class="ti ti-loader-2" style="font-size:24px;animation:spin 1s linear infinite;"></i>問題を生成中...</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
   answered = false;
   try {
     const raw = await callClaude([{ role: 'user', content: categoryMap[cat] + 'についての問題を1問生成してください' }], TEST_SYSTEM);
@@ -232,23 +519,26 @@ async function generateTest() {
     currentTest = q;
     renderTest(q);
   } catch(e) {
-    area.innerHTML = '<div style="color:#999;font-size:14px;padding:1rem;">生成に失敗しました。再度お試しください。</div>';
+    area.innerHTML = '<div style="color:var(--text-3);font-size:14px;padding:1rem;text-align:center;">生成に失敗しました。再度お試しください。</div>';
   }
 }
 
 function renderTest(q) {
   const area = document.getElementById('test-area');
   area.innerHTML = `
-    <div class="score-row"><span class="score-label">スコア</span><span class="score-val">${score} / ${total}</span></div>
+    <div class="score-row">
+      <span class="score-label"><i class="ti ti-chart-bar" aria-hidden="true"></i>スコア</span>
+      <span class="score-val">${score} / ${total}</span>
+    </div>
     <div class="test-card">
-      <div class="test-cat">${q.category}</div>
+      <div class="test-cat-badge"><i class="ti ti-tag" aria-hidden="true"></i>${q.category}</div>
       <div class="test-q">${q.question}</div>
-      <div class="test-options">
-        ${q.options.map((o, i) => `<button class="test-opt" onclick="answerTest(${i})">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+      <div class="test-options" id="options">
+        ${q.options.map((o, i) => `<button class="test-opt" onclick="answerTest(${i})"><span class="opt-letter">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')}
       </div>
       <div id="explanation"></div>
     </div>
-    <button class="next-btn" onclick="generateTest()" style="display:none;" id="next-btn">次の問題 →</button>`;
+    <button class="next-btn" onclick="generateTest()" style="display:none;" id="next-btn"><i class="ti ti-arrow-right" aria-hidden="true"></i>次の問題</button>`;
 }
 
 function answerTest(idx) {
@@ -262,16 +552,17 @@ function answerTest(idx) {
     b.onclick = null;
   });
   if (idx === q.correct) score++;
-  document.getElementById('explanation').innerHTML = `<div class="explanation">💡 ${q.explanation}</div>`;
-  document.getElementById('next-btn').style.display = 'block';
+  document.getElementById('explanation').innerHTML = `<div class="explanation"><i class="ti ti-bulb" aria-hidden="true"></i><span>${q.explanation}</span></div>`;
+  document.getElementById('next-btn').style.display = 'flex';
 }
 
 function renderCheckSheet() {
   let html = '';
+  let catIndex = 0;
   Object.entries(checkItems).forEach(([cat, items]) => {
     html += `<div class="check-section"><div class="check-section-title">${cat}</div>`;
     items.forEach((item, i) => {
-      const key = (cat + '_' + i).replace(/[^\w]/g, '_');
+      const key = 'c' + catIndex + '_i' + i;
       html += `<div class="check-item">
         <div class="check-text">${item}</div>
         <div class="check-stars" id="stars_${key}">
@@ -280,6 +571,7 @@ function renderCheckSheet() {
       </div>`;
     });
     html += '</div>';
+    catIndex++;
   });
   html += '<div id="check-result-area"></div>';
   document.getElementById('check-area').innerHTML = html;
@@ -295,18 +587,21 @@ function setStar(key, val) {
 async function analyzeCheck() {
   if (Object.keys(checkData).length === 0) { alert('まずチェックシートに点数をつけてください'); return; }
   const resultArea = document.getElementById('check-result-area');
-  resultArea.innerHTML = '<div style="text-align:center;color:#999;padding:1rem;font-size:14px;">分析中...</div>';
-  const summary = Object.entries(checkItems).map(([cat, items]) => {
-    const scores = items.map((_, i) => checkData[(cat+'_'+i).replace(/[^\w]/g,'_')] || 0);
+  resultArea.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:2rem;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:10px;"><i class="ti ti-loader-2" style="font-size:24px;animation:spin2 1s linear infinite;"></i>分析中...</div><style>@keyframes spin2{to{transform:rotate(360deg)}}</style>';
+  const summary = Object.entries(checkItems).map(([cat, items], ci) => {
+    const scores = items.map((_, i) => checkData['c' + ci + '_i' + i] || 0);
     return `${cat}: 平均${(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1)}点（${scores.join(',')}）`;
   }).join('\n');
   try {
     const reply = await callClaude([{ role:'user', content:`心得チェック結果:\n${summary}\n\n低スコアのカテゴリを特定し具体的な改善アドバイスを300字以内で。` }], SYSTEM_PROMPT);
-    resultArea.innerHTML = `<div class="check-result"><strong style="font-size:13px;">AI分析結果</strong><br><br><div style="font-size:13px;color:#444;line-height:1.8;">${reply.replace(/\n/g,'<br>')}</div></div>`;
+    resultArea.innerHTML = `<div class="check-result-card"><div class="check-result-title"><i class="ti ti-chart-radar" aria-hidden="true"></i>AI分析結果</div><div style="font-size:13.5px;color:var(--text-1);line-height:1.85;">${reply.replace(/\n/g,'<br>')}</div></div>`;
   } catch(e) {
-    resultArea.innerHTML = '<div style="color:#999;font-size:13px;padding:1rem;">分析に失敗しました。</div>';
+    resultArea.innerHTML = '<div style="color:var(--text-3);font-size:13px;padding:1rem;text-align:center;">分析に失敗しました。</div>';
   }
 }
+
+renderLearn();
+
 </script>
 </body>
 </html>
