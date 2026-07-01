@@ -148,6 +148,12 @@ body{font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,'Hiragino Sans'
 .trend-delta.same{color:var(--text-3)}
 .save-check-btn{width:100%;padding:11px;border:1px solid var(--accent);border-radius:var(--radius-md);background:var(--accent-light);cursor:pointer;font-size:13.5px;font-weight:700;font-family:inherit;color:var(--accent-dark);margin-top:.75rem;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
 .save-check-btn:hover{background:var(--accent);color:#fff}
+
+/* chat mode toggle */
+.chat-mode-toggle{display:flex;gap:6px;margin-bottom:12px}
+.mode-toggle-btn{flex:1;padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--text-2);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.mode-toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mode-toggle-btn i{font-size:15px}
 </style>
 </head>
 <body>
@@ -166,17 +172,27 @@ body{font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,'Hiragino Sans'
 
   <!-- AI相談 -->
   <div id="consult" class="panel active">
+    <div class="chat-mode-toggle">
+      <button class="mode-toggle-btn active" id="btn-mgmt" onclick="setChatMode('mgmt')"><i class="ti ti-target-arrow"></i>マネジメント相談</button>
+      <button class="mode-toggle-btn" id="btn-roumu" onclick="setChatMode('roumu')"><i class="ti ti-building-community"></i>労務相談</button>
+    </div>
     <div class="chat-header">
-      <div class="section-label"><i class="ti ti-bulb"></i>よくある質問</div>
+      <div class="section-label" id="quick-label"><i class="ti ti-bulb"></i>よくある質問</div>
       <button class="reset-btn" onclick="resetChat()"><i class="ti ti-refresh"></i>履歴をリセット</button>
     </div>
-    <div class="quick-grid">
+    <div id="quick-grid-mgmt" class="quick-grid">
       <button class="quick-btn" onclick="quickAsk('コーチングとフィードバックの違いを教えてください')"><span class="qicon"><i class="ti ti-arrows-diff"></i></span>コーチングとフィードバックの違い</button>
       <button class="quick-btn" onclick="quickAsk('GPKaとは何ですか？どう使いますか？')"><span class="qicon"><i class="ti ti-route"></i></span>GPKaの使い方</button>
       <button class="quick-btn" onclick="quickAsk('権限委譲でよくある失敗パターンは？')"><span class="qicon"><i class="ti ti-alert-triangle"></i></span>権限委譲の失敗</button>
       <button class="quick-btn" onclick="quickAsk('メンバーのWillをどうやって引き出せばいい？')"><span class="qicon"><i class="ti ti-compass"></i></span>Willの引き出し方</button>
       <button class="quick-btn" onclick="quickAsk('野心的な目標設定の具体的な方法を教えてください')"><span class="qicon"><i class="ti ti-flag"></i></span>野心的な目標設定</button>
       <button class="quick-btn" onclick="quickAsk('チームのモメンタムを高める方法は？')"><span class="qicon"><i class="ti ti-trending-up"></i></span>モメンタムの高め方</button>
+    </div>
+    <div id="quick-grid-roumu" class="quick-grid" style="display:none">
+      <button class="quick-btn" onclick="quickAsk('部下が7営業日以上連絡が取れない場合、私はどう動けばいいですか？')"><span class="qicon"><i class="ti ti-user-off"></i></span>部下が音信不通になった</button>
+      <button class="quick-btn" onclick="quickAsk('部下が「辞めたい」と言ってきました。私はどう対応すればいいですか？')"><span class="qicon"><i class="ti ti-door-exit"></i></span>部下が退職したいと言ってきた</button>
+      <button class="quick-btn" onclick="quickAsk('部下が体調不良・メンタル不調で休みがちです。休職の手続きはどう進めればいいですか？')"><span class="qicon"><i class="ti ti-heart-off"></i></span>部下の休職手続きについて</button>
+      <button class="quick-btn" onclick="quickAsk('部下の遅刻・欠勤が続いています。私が対応すべきことと、人事に相談すべきことを教えてください')"><span class="qicon"><i class="ti ti-clock-off"></i></span>遅刻・欠勤が続く部下への対応</button>
     </div>
     <div class="chat-box">
       <div class="messages" id="chat-messages">
@@ -247,6 +263,74 @@ const SYSTEM_PROMPT = `あなたはマネジメントトレーニングの専門
 状況判断と器, チャレンジ, 自分の頭で・自分の言葉で, 本質的なことだけやる, メンバーから教えてもらう, メンバーの人生を預かる, 才能を開花させる, 見られている自覚, 自己成長に務める, メンバーを「がっかり」させない, 自分を知り自分に勝つ, メンバーに向き合う
 
 回答は具体的かつ実践的に。型番号を引用して説明すると良い。300字以内を目安にコンパクトに答えること。`;
+
+const ROUMU_PROMPT = `あなたはグリーングループの労務管理をサポートする人事アシスタントAIです。
+以下の役割分担ルールと労務知識に基づき、部長・課長からの質問に答えてください。
+
+【回答の3つのルール】
+①現場（部長・課長）と人事の「役割分担」を明確にして答えること。
+②ルールに記載がないことや例外的な判断が必要なケースは「勝手に推測せず、人事課へ相談するように」と促すこと。
+③簡潔に、管理職が「次に取るべき具体的なアクション」がわかるように答えること。
+
+【役割分担の基本4ルール】
+1. 各部門のメンバーに関することは、まず部署（部長）が一次対応する
+2. 部長が判断できない・制度/手続きに関することは人事へ
+3. シフト・日常の勤怠・在籍メンバーへの連絡は各部署が責任を持つ（人事の業務ではない）
+4. 人事を飛び越えて中川専務へ直接連絡するのは「緊急かつ重大な案件のみ」
+
+【フェーズ別役割分担】
+■入社時
+・部署（部長）の役割：採用決定後の配属準備、1日/15日入社の厳守、初日不参時の一次連絡、freeeで申請
+・人事の役割：入社前手続き・契約締結・入社書類の収集、音信不通時の自然退職処理
+・初日不参時：部長が本人へ連絡を試み、結果を人事へ即共有。7営業日連絡が取れない場合は人事へ正式報告。30日経過で自然退職処理（人事が実施）。
+・試用期間14日以内は解雇予告なし即日解雇が法律上可能（労基法第21条）
+
+■休職時
+・部署（部長）の役割：休職打診時は必ず事前に人事へ相談、診断書の回収（必須・口頭不可）、重要ルールを対面で本人へ説明（休職期間内に復職できなければ退職扱い、社会保険料の自己負担振込）、休職中の定期連絡窓口、復職面談、freeeで申請
+・人事の役割：休職可否の最終判断、期間管理・満了日リマインド、傷病手当金等の行政申請、社会保険料の管理
+・休職期間の上限：勤続1年未満→1ヶ月、1年以上3年未満→2ヶ月、3年以上→6ヶ月（延長は原則不可）
+・7営業日超の連続欠勤は放置禁止→速やかに休職手続きへ
+
+■退職時
+・部署（部長）の役割：書面（退職届）またはチャット履歴で合意を取ること（口頭合意での申請は一切禁止）、私物対応（本人へ着払い送付を確認）、社保未納時の本人への催促連絡、freeeで申請
+・人事の役割：退職手続き案内、社会保険喪失手続、書類発行・提出管理
+・音信不通時：部長が一次連絡→7営業日以上取れなければ人事へ報告
+
+【よくある問い合わせ対応先】
+■部署（部長）が対応（人事に来ても部署に戻す）
+・出勤してこない・連絡が取れない（在籍者）
+・シフトの調整・変更
+・部下のやる気・態度／軽微な人間関係トラブル
+・残業・休出の承認
+・「辞めたい」の一次面談・退職申請の起票
+
+■部署＋人事で連携
+・体調不良・メンタル不調が続いている
+・ハラスメント・重大トラブル（即人事へ報告）
+・各部内の深刻な対立・関係破綻
+
+■人事が対応
+・就業規則・制度の内容に関する質問
+・給与計算の詳細確認
+・住所・扶養等の変更手続き
+・入社・退職の書類／社会保険手続き`;
+
+let chatMode = 'mgmt';
+
+function setChatMode(mode) {
+  chatMode = mode;
+  document.getElementById('btn-mgmt').classList.toggle('active', mode === 'mgmt');
+  document.getElementById('btn-roumu').classList.toggle('active', mode === 'roumu');
+  document.getElementById('quick-grid-mgmt').style.display = mode === 'mgmt' ? '' : 'none';
+  document.getElementById('quick-grid-roumu').style.display = mode === 'roumu' ? '' : 'none';
+  document.getElementById('chat-input').placeholder = mode === 'mgmt' ? 'マネジメントについて質問する...' : '労務・人事手続きについて質問する...';
+  resetChat(true);
+}
+
+function getCurrentPrompt() {
+  return chatMode === 'roumu' ? ROUMU_PROMPT : SYSTEM_PROMPT;
+}
+
 
 const TEST_SYSTEM = `あなたはマネジメントトレーニングのテスト問題作成者です。指定されたカテゴリから4択問題を1問作成し、JSON形式のみで返してください。前置きや説明文は不要です。
 
@@ -346,7 +430,7 @@ async function sendChat() {
   chatHistory.push({ role: 'user', content: text });
   const loading = addMessage('', 'loading ai');
   try {
-    const reply = await callClaude(chatHistory, SYSTEM_PROMPT);
+    const reply = await callClaude(chatHistory, getCurrentPrompt());
     loading.remove();
     addMessage(reply, 'ai');
     chatHistory.push({ role: 'assistant', content: reply });
@@ -361,12 +445,15 @@ function quickAsk(text) {
   sendChat();
 }
 
-function resetChat() {
-  if (!confirm('チャット履歴をリセットしますか？')) return;
+function resetChat(silent) {
+  if (!silent && !confirm('チャット履歴をリセットしますか？')) return;
   chatHistory = [];
   const box = document.getElementById('chat-messages');
   box.innerHTML = '';
-  addMessage('こんにちは。マネジメントトレーニングシートの内容について、何でも相談してください。\n\n60の型・心得・実践事例をもとに、具体的なアドバイスをお伝えします。', 'ai');
+  const msg = chatMode === 'roumu'
+    ? 'こんにちは。労務・人事手続きについてサポートします。\n\n部長・課長として「次に取るべきアクション」が明確になるよう、現場と人事の役割分担を踏まえてお答えします。'
+    : 'こんにちは。マネジメントトレーニングシートの内容について、何でも相談してください。\n\n60の型・心得・実践事例をもとに、具体的なアドバイスをお伝えします。';
+  addMessage(msg, 'ai');
 }
 
 // ── test ──
