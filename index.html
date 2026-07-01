@@ -174,7 +174,7 @@ body{font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,'Hiragino Sans'
   <div id="consult" class="panel active">
     <div class="chat-mode-toggle">
       <button class="mode-toggle-btn active" id="btn-mgmt" onclick="setChatMode('mgmt')"><i class="ti ti-target-arrow"></i>マネジメント相談</button>
-      <button class="mode-toggle-btn" id="btn-roumu" onclick="setChatMode('roumu')"><i class="ti ti-building-community"></i>現場×人事 役割確認</button>
+      <button class="mode-toggle-btn" id="btn-roumu" onclick="setChatMode('roumu')"><i class="ti ti-building-community"></i>部長・課長×人事　役割確認</button>
     </div>
     <div class="chat-header">
       <div class="section-label" id="quick-label"><i class="ti ti-bulb"></i>よくある質問</div>
@@ -264,13 +264,11 @@ const SYSTEM_PROMPT = `あなたはマネジメントトレーニングの専門
 
 回答は具体的かつ実践的に。型番号を引用して説明すると良い。300字以内を目安にコンパクトに答えること。`;
 
-const ROUMU_PROMPT = `あなたはグリーングループの労務管理をサポートする人事アシスタントAIです。
-以下の役割分担ルールと労務知識に基づき、部長・課長からの質問に答えてください。
-
-【回答の3つのルール】
-①現場（部長・課長）と人事の「役割分担」を明確にして答えること。
-②ルールに記載がないことや例外的な判断が必要なケースは「勝手に推測せず、人事課へ相談するように」と促すこと。
-③簡潔に、管理職が「次に取るべき具体的なアクション」がわかるように答えること。
+const ROUMU_PROMPT = `あなたは当社の労務管理をサポートする人事アシスタントAIです。提供されたソース（労務講義データ）に基づき、部長や課長からの質問に答えてください。
+回答する際は以下のルールを守ってください。
+①現場（部長・課長）と人事の『役割分担』を明確にして答えること。
+②ルール（ソースデータ）に明確な記載がない単語やケース（例：有給休暇、給与計算など）について質問された場合は、資料内にあるシステム名（freee等）を流用して勝手に確認方法を推測・案内してはいけません。必ず「その件については資料に記載がないため、人事課へご相談ください」とだけ案内すること。
+③簡潔で、管理職が『次に取るべき具体的なアクション』がわかるように答えること。
 
 【役割分担の基本4ルール】
 1. 各部門のメンバーに関することは、まず部署（部長）が一次対応する
